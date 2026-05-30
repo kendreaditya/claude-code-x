@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# ccx launcher — runs the package without requiring an install.
+here="$(cd "$(dirname "$0")/.." && pwd)"
+exec python3 -m ccx "$@"

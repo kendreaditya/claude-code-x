@@ -1,0 +1,23 @@
+[project]
+name = "claudius-code"
+version = "0.1.0"
+description = "Universal CLI patcher for the Claude Code binary (provenance-respecting, version-aware)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Aditya Kendre" }]
+# M0-M3 are stdlib-only. LIEF (variable-length engine) and a TUI lib arrive later.
+dependencies = []
+
+[project.scripts]
+ccx = "ccx.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/kendreaditya/claudius-code"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["ccx"]

@@ -3,6 +3,7 @@
   "id": "fifo-steering-queue",
   "name": "FIFO Steering and Queue Bundling",
   "group": "behavior",
+  "level": "binary",
   "description": "Make queued user input behave as a pure FIFO queue: no mid-turn <system-reminder> steering, no per-mode bundling. Each queued message drains one-at-a-time as its own turn.",
   "provenance": {
     "source_repo": "kendreaditya/claudius-code",
