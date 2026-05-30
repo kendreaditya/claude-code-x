@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "prompt-cache-1h-unlock",
+  "name": "Unlock 1h prompt cache TTL",
+  "group": "performance",
+  "level": "binary",
+  "description": "Forces the 1-hour prompt-cache eligibility check (should1hCacheTTL, minified cvH in 2.1.158) to unconditionally return true, enabling the ttl:\"1h\" cache_control path for all query sources regardless o",
+  "archived": true,
+  "archive_reason": "excluded-by-policy: circumvents subscriber/overage gating for the 1h prompt-cache TTL (paid entitlement).",
+  "provenance": {
+    "source_repo": "ryfineZ/claude-1h-cache-patch",
+    "source_url": "https://github.com/ryfineZ/claude-1h-cache-patch",
+    "author": "ryfineZ",
+    "license": "unknown",
+    "derived_by": "Re-anchored to 2.1.158 minified function cvH; constructed same-length comment-padded return!0 replacement (upstream literal cX5 anchor does not byte-match 2.1.158)."
+  },
+  "applies_to": {
+    "containers": [],
+    "version_range": ">=2.1.0 <3.0.0"
+  },
+  "operations": []
+}

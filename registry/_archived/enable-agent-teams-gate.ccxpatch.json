@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "enable-agent-teams-gate",
+  "name": "Enable Agent Teams / Swarm Mode",
+  "group": "behavior",
+  "level": "binary",
+  "description": "Force-enables Claude Code's native multi-agent 'agent teams' / swarm mode (TeammateTool, delegate mode, swarm spawning, teammate mailbox, task ownership). The feature is normally gated by the CLAUDE_C",
+  "archived": true,
+  "archive_reason": "excluded-by-policy: force-enables experimental, env-gated agent-teams/swarm feature.",
+  "provenance": {
+    "source_repo": "gist:syabro/0ca27bdfebf2ca1592808e0617a1ae92",
+    "source_url": "https://gist.github.com/syabro/0ca27bdfebf2ca1592808e0617a1ae92",
+    "author": "syabro",
+    "license": "unknown",
+    "derived_by": "reverse-engineered from upstream gate-always-true insertion; mapped to renamed I7 gate in 2.1.158 and neutralized as a same-length return-value flip"
+  },
+  "applies_to": {
+    "containers": [],
+    "version_range": ">=2.1.0 <3.0.0"
+  },
+  "operations": []
+}

@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "datadog-token-zeroing",
+  "name": "Zero Datadog Client Token",
+  "group": "privacy",
+  "level": "binary",
+  "description": "Neutralizes Datadog analytics log ingestion by zeroing the embedded Datadog client token ('pub'+32 hex) sent as the DD-API-KEY header to https://http-intake.logs.us5.datadoghq.com/api/v2/logs. Replace",
+  "archived": true,
+  "archive_reason": "excluded-by-policy: removes vendor telemetry by zeroing the Datadog token; left to explicit user opt-in, not shipped by default.",
+  "provenance": {
+    "source_repo": "ultrmgns/claude-private",
+    "source_url": "https://github.com/ultrmgns/claude-private",
+    "author": "ultrmgns",
+    "license": "unknown",
+    "derived_by": "ccx-reverse-engineering"
+  },
+  "applies_to": {
+    "containers": [],
+    "version_range": ">=2.1.0 <3.0.0"
+  },
+  "operations": []
+}

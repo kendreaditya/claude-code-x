@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "id": "disable-context-low-warning",
+  "name": "Disable Context Low Warning",
+  "group": "cosmetic",
+  "level": "binary",
+  "description": "Suppresses the 'Context low (N% remaining) \u00b7 Run /compact to compact & continue' statusline warning rendered by the TokenWarning component. Forces the component's early-return condition to always be truthy so it always returns null and never renders the context-low banner. Derived from the 'Context Low Warnings' patch in Haleclipse/CCometixLine's `ccline --patch cli.js` tool, but implemented as a length-neutral single-character byte swap instead of a variable-length AST rewrite.",
+  "provenance": {
+    "source_repo": "Haleclipse/CCometixLine",
+    "source_url": "https://github.com/Haleclipse/CCometixLine",
+    "author": "Haleclipse",
+    "license": "unknown",
+    "derived_by": "Reverse-engineered from src/utils/claude_code_patcher.rs (Context Low Warnings patch); upstream does a variable-length tree-sitter AST replacement (if(true)return null;), reimplemented here as a same-length z->1 swap in the minified early-return condition of the TokenWarning component."
+  },
+  "applies_to": {
+    "containers": [
+      "macho-arm64-bun",
+      "macho-x64-bun",
+      "elf-x64-bun"
+    ],
+    "version_range": ">=2.1.0 <3.0.0",
+    "verified_on": [
+      "2.1.158"
+    ]
+  },
+  "allow_variable_length": false,
+  "operations": [
+    {
+      "op_id": "force-tokenwarning-return-null",
+      "kind": "landmark-anchored",
+      "rationale": "The TokenWarning component (minified Z54) renders the 'Context low (...)' warning. Its early-return `if($.level===\"ok\"||z)return null` only exits when context is fine. Swapping the final disjunct `z` to literal `1` makes the condition always-truthy, so the component always returns null and the warning never displays. The full 32-byte if-statement is unique in the binary and the swap is a single char, keeping byte length identical.",
+      "must_be_unique": true,
+      "same_length": true,
+      "in_bun_region": true,
+      "anchor": "if($.level===\"ok\"||z)return null",
+      "replace": "if($.level===\"ok\"||1)return null",
+      "patched_anchor": "if($.level===\"ok\"||1)return null"
+    }
+  ],
+  "archived": true,
+  "archive_reason": "TokenWarning anchor absent on 2.1.158; needs re-derivation"
+}

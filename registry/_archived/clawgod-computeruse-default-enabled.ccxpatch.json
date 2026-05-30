@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "clawgod-computeruse-default-enabled",
+  "name": "Computer Use enabled by default",
+  "group": "behavior",
+  "level": "binary",
+  "description": "Flips the Computer Use ChicagoConfig DEFAULTS.enabled flag from false (!1) to true (!0) in the bundled CLI, so Computer Use is on by default without requiring the GrowthBook 'tengu_malort_pedway' roll",
+  "archived": true,
+  "archive_reason": "excluded-by-policy: unlocks Computer Use bypassing the GrowthBook rollout / entitlement gate; part of a 'god mode' suite that also removes safety controls. Not shipped.",
+  "provenance": {
+    "source_repo": "QiGGG/claude-code-patch",
+    "source_url": "https://github.com/QiGGG/claude-code-patch",
+    "author": "QiGGG",
+    "license": "unknown",
+    "derived_by": "Mapped ClawGod patcher.mjs regex /(\\w+=)\\{enabled:!1,pixelValidation/ to 2.1.88 source utils/computerUse/gates.ts DEFAULTS, then located and verified the minified anchor in the pristine 2.1.158 bun binary with python3 re on raw bytes (count==1, in main CJS region, same-length single-char flip)."
+  },
+  "applies_to": {
+    "containers": [],
+    "version_range": ">=2.1.0 <3.0.0"
+  },
+  "operations": []
+}

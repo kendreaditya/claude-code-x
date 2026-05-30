@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "enable-channels-tengu-harbor-gate",
+  "name": "Enable channels (tengu_harbor gate default-on)",
+  "group": "behavior",
+  "level": "binary",
+  "description": "Flips the Statsig default value of the tengu_harbor feature gate from false to true, so the channels feature is treated as enabled even when no remote gate config is present. Same-length single-byte s",
+  "archived": true,
+  "archive_reason": "excluded-by-policy: force-enables an internal Statsig gate (tengu_harbor); also overlaps existing channels-no-oauth.",
+  "provenance": {
+    "source_repo": "andrewleech/claude-net",
+    "source_url": "https://github.com/andrewleech/claude-net/blob/main/docs/CLAUDE_CODE_PATCHING_GUIDE.md",
+    "author": "andrewleech",
+    "license": "unknown",
+    "derived_by": "Reverse-engineered from the guide's Patch 1 (tengu_harbor channels feature gate); adapted to a same-length backref-preserving default-value flip verified against pristine 2.1.158."
+  },
+  "applies_to": {
+    "containers": [],
+    "version_range": ">=2.1.0 <3.0.0"
+  },
+  "operations": []
+}

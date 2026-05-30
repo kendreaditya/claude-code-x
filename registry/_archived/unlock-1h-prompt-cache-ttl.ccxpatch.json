@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "unlock-1h-prompt-cache-ttl",
+  "name": "Unlock 1-hour prompt cache TTL",
+  "group": "performance",
+  "level": "binary",
+  "description": "Forces the 1-hour prompt-cache eligibility predicate (should1hCacheTTL / minified cvH) to unconditionally return true, so requests use the 1h cache_control TTL regardless of provider, env vars, subscr",
+  "archived": true,
+  "archive_reason": "excluded-by-policy: circumvents subscriber/overage gating for the 1h prompt-cache TTL (paid entitlement).",
+  "provenance": {
+    "source_repo": "ryfineZ/claude-1h-cache-patch",
+    "source_url": "https://gist.github.com/lixiangwuxian/70af6eb0a7f4855d58333e39914b8bd5",
+    "author": "lixiangwuxian",
+    "license": "unknown",
+    "derived_by": "reverse-engineered from upstream gist; remapped to 2.1.158 binary (function cvH) and converted to a single same-length landmark-anchored regex edit"
+  },
+  "applies_to": {
+    "containers": [],
+    "version_range": ">=2.1.0 <3.0.0"
+  },
+  "operations": []
+}

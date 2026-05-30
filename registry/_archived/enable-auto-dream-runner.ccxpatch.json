@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "enable-auto-dream-runner",
+  "name": "Enable /dream auto-memory consolidation (runner gate)",
+  "group": "behavior",
+  "level": "binary",
+  "description": "Forces the auto-dream runner gate (minified isAutoDreamEnabled, fn rV_ in 2.1.158) to default-enable instead of consulting the tengu_onyx_plover availability gate / GrowthBook fallback. The user's exp",
+  "archived": true,
+  "archive_reason": "excluded-by-policy: force-enables a non-GA internal feature gate (tengu_onyx_plover / auto-dream).",
+  "provenance": {
+    "source_repo": "fol2/enable-dream",
+    "source_url": "https://github.com/fol2/enable-dream/blob/master/skills/enable-dream/scripts/dream_patcher.py",
+    "author": "fol2",
+    "license": "unknown",
+    "derived_by": "Reverse-engineered from dream_patcher.py (function-body-rewrite + runner flip approach); reduced to a single robust backref-anchored runner-gate rewrite verified against the 2.1.158 pristine binary."
+  },
+  "applies_to": {
+    "containers": [],
+    "version_range": ">=2.1.0 <3.0.0"
+  },
+  "operations": []
+}

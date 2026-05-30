@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "id": "restore-subagent-claudemd-context",
+  "name": "Restore CLAUDE.md context for subagents",
+  "group": "behavior",
+  "level": "binary",
+  "description": "Re-enables CLAUDE.md (project/user memory) context for built-in read-only subagents (Explore/Plan) and disables the slim-subagent trim regression introduced in v2.1.84+. Flips the minified omitClaudeMd flag from true (!0) to false (!1) on the built-in agent definitions and flips the tengu_slim_subagent_claudemd feature-gate default from true to false in runAgent's shouldOmitClaudeMd computation, so subagents again receive the full CLAUDE.md user context.",
+  "provenance": {
+    "source_repo": "anthropics/claude-code",
+    "source_url": "https://github.com/anthropics/claude-code/issues/40459",
+    "author": "anthropics/claude-code issue #40459 reporter",
+    "license": "unknown",
+    "derived_by": "Reverse-engineered from inline sed patches in GitHub issue #40459 (s/omitClaudeMd:!0/omitClaudeMd:!1/g and s/\"tengu_slim_subagent_claudemd\",!0/\"tengu_slim_subagent_claudemd\",!1/g), mapped to 2.1.88 source (exploreAgent.ts, runAgent.ts) and verified against pristine 2.1.158 binary."
+  },
+  "applies_to": {
+    "containers": [
+      "macho-arm64-bun",
+      "macho-x64-bun",
+      "elf-x64-bun"
+    ],
+    "version_range": ">=2.1.0 <3.0.0",
+    "verified_on": [
+      "2.1.158"
+    ]
+  },
+  "allow_variable_length": false,
+  "operations": [
+    {
+      "op_id": "omit-claudemd-haiku-agent",
+      "kind": "landmark-anchored",
+      "rationale": "Built-in Explore (external/haiku) agent definition sets omitClaudeMd:true. The bare 'omitClaudeMd:!0' occurs twice, so the anchor includes the preceding model:\"haiku\" literal to be unique. Flipping !0->!1 sets omitClaudeMd:false so this subagent keeps CLAUDE.md.",
+      "must_be_unique": true,
+      "same_length": true,
+      "in_bun_region": true,
+      "anchor": "model:\"haiku\",omitClaudeMd:!0",
+      "replace": "model:\"haiku\",omitClaudeMd:!1",
+      "patched_anchor": "model:\"haiku\",omitClaudeMd:!1"
+    },
+    {
+      "op_id": "omit-claudemd-inherit-agent",
+      "kind": "landmark-anchored",
+      "rationale": "Second built-in agent definition (inherit model) sets omitClaudeMd:true. Anchor widened with preceding model:\"inherit\" literal for uniqueness. Flipping !0->!1 restores CLAUDE.md for this subagent.",
+      "must_be_unique": true,
+      "same_length": true,
+      "in_bun_region": true,
+      "anchor": "model:\"inherit\",omitClaudeMd:!0",
+      "replace": "model:\"inherit\",omitClaudeMd:!1",
+      "patched_anchor": "model:\"inherit\",omitClaudeMd:!1"
+    },
+    {
+      "op_id": "slim-subagent-killswitch-default",
+      "kind": "landmark-anchored",
+      "rationale": "runAgent computes shouldOmitClaudeMd = agentDefinition.omitClaudeMd && !override.userContext && getFeatureValue('tengu_slim_subagent_claudemd', true). The literal default true (!0) is the in-region runtime gate. Anchor includes the trailing ',!0' (uniquely the plaintext getFeatureValue call; a second bare 'tengu_slim_subagent_claudemd' in a bytecode metadata blob outside the CJS region is not matched). Flipping the default to false disables the slim trim even when the GrowthBook flag is unavailable.",
+      "must_be_unique": true,
+      "same_length": true,
+      "in_bun_region": true,
+      "anchor": "\"tengu_slim_subagent_claudemd\",!0",
+      "replace": "\"tengu_slim_subagent_claudemd\",!1",
+      "patched_anchor": "\"tengu_slim_subagent_claudemd\",!1"
+    }
+  ]
+}

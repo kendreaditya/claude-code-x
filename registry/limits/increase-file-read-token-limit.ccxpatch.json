@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "increase-file-read-token-limit",
+  "name": "Increase file read token limit",
+  "group": "limits",
+  "level": "binary",
+  "description": "Raises Claude Code's FileReadTool per-file output token limit (DEFAULT_MAX_OUTPUT_TOKENS) from 25000 to 99999, letting the Read tool return larger files before truncating. Derived from tweakcc's increaseFileReadLimit patch; capped at 99999 to remain byte-length-neutral for in-place binary patching.",
+  "provenance": {
+    "source_repo": "Piebald-AI/tweakcc",
+    "source_url": "https://github.com/Piebald-AI/tweakcc/blob/main/src/patches/increaseFileReadLimit.ts",
+    "author": "Piebald-AI",
+    "license": "unknown",
+    "derived_by": "ccx-reverse-engineer"
+  },
+  "applies_to": {
+    "containers": [
+      "macho-arm64-bun",
+      "macho-x64-bun",
+      "elf-x64-bun"
+    ],
+    "version_range": ">=2.1.0 <3.0.0",
+    "verified_on": [
+      "2.1.158"
+    ]
+  },
+  "allow_variable_length": false,
+  "operations": [
+    {
+      "op_id": "raise-default-max-output-tokens",
+      "kind": "landmark-anchored",
+      "rationale": "DEFAULT_MAX_OUTPUT_TOKENS (=25000) is the FileReadTool read limit (cc-2188 tools/FileReadTool/limits.ts:18). The bare '=25000,' occurs 4x in the binary, so it is disambiguated by the adjacent bundled AUTO_MEM_DISPLAY_NAME=\"auto memory\" literal, yielding a single unique match. Minified ids are churned, so they are preserved via backrefs while only the 5-digit value is swapped.",
+      "must_be_unique": true,
+      "same_length": true,
+      "in_bun_region": true,
+      "anchor": "([A-Za-z0-9_$]{1,6})=25000,([A-Za-z0-9_$]{1,6})=\"auto memory\"",
+      "replace": "\\g<1>=99999,\\g<2>=\"auto memory\"",
+      "patched_anchor": "([A-Za-z0-9_$]{1,6})=99999,([A-Za-z0-9_$]{1,6})=\"auto memory\""
+    }
+  ]
+}

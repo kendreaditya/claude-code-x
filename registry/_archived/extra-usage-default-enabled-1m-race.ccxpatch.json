@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "extra-usage-default-enabled-1m-race",
+  "name": "Treat unloaded extra-usage state as enabled (fix 1M-context load race)",
+  "group": "limits",
+  "level": "binary",
+  "description": "Flips the conservative default in isExtraUsageEnabled() so that when the cached extra-usage disabled reason has not yet loaded (undefined), it is treated as enabled (true) instead of disabled (false).",
+  "archived": true,
+  "archive_reason": "excluded-by-policy: flips extra-usage / 1M-context default on (paid entitlement).",
+  "provenance": {
+    "source_repo": "gist:ahundt/158d498f07a10fec4955a70bf475a20b",
+    "source_url": "https://gist.github.com/ahundt/158d498f07a10fec4955a70bf475a20b",
+    "author": "ahundt",
+    "license": "unknown",
+    "derived_by": "ccx reverse-engineering: mapped to utils/model/check1mAccess.ts isExtraUsageEnabled() in 2.1.88 source ref, anchored against pristine 2.1.158 binary (minified PS7)"
+  },
+  "applies_to": {
+    "containers": [],
+    "version_range": ">=2.1.0 <3.0.0"
+  },
+  "operations": []
+}

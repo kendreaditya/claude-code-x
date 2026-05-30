@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "id": "clawd-banner-body-color",
+  "name": "Clawd Banner Body Color (Neon Violet)",
+  "group": "cosmetic",
+  "level": "binary",
+  "description": "Recolors the Clawd startup-banner body in the default (dark) theme from the stock orange rgb(215,119,87) to Neon Violet rgb(188,19,254). Mirrors the color edit of nguyenngocviet191/claude-code-mod-banner (the only same-length, identifier-independent part of that mod). Purely visual; no behavior change.",
+  "provenance": {
+    "source_repo": "nguyenngocviet191/claude-code-mod-banner",
+    "source_url": "https://github.com/nguyenngocviet191/claude-code-mod-banner",
+    "author": "nguyenngocviet191",
+    "license": "unknown",
+    "derived_by": "reverse-engineered from patch-icon.js color regex (clawd_body rgb) + bot-presets.json neon preset; mapped to utils/theme.ts:161 default dark theme; anchored same-length in 2.1.158 binary"
+  },
+  "applies_to": {
+    "containers": [
+      "macho-arm64-bun",
+      "macho-x64-bun",
+      "elf-x64-bun"
+    ],
+    "version_range": ">=2.1.0 <3.0.0",
+    "verified_on": [
+      "2.1.158"
+    ]
+  },
+  "allow_variable_length": false,
+  "operations": [
+    {
+      "op_id": "recolor-clawd-body-default-theme",
+      "kind": "landmark-anchored",
+      "rationale": "The bare string clawd_body:\"rgb(215,119,87)\" occurs 4 times (one per rgb-bodied theme); the mod's /g regex hits all 4 but a verified ccx edit needs a unique anchor. Extending left to the per-theme-unique diffRemovedWord:\"rgb(209,69,75)\" token isolates the first/default dark theme (theme.ts:161), which drives the startup banner. Only the trailing clawd_body color value (15 chars) is changed; the anchor is otherwise echoed verbatim, keeping total length identical.",
+      "must_be_unique": true,
+      "same_length": true,
+      "in_bun_region": true,
+      "anchor": "diffRemovedWord:\"rgb(209,69,75)\",red_FOR_SUBAGENTS_ONLY:\"rgb(220,38,38)\",blue_FOR_SUBAGENTS_ONLY:\"rgb(106,155,204)\",green_FOR_SUBAGENTS_ONLY:\"rgb(22,163,74)\",yellow_FOR_SUBAGENTS_ONLY:\"rgb(202,138,4)\",purple_FOR_SUBAGENTS_ONLY:\"rgb(130,125,189)\",orange_FOR_SUBAGENTS_ONLY:\"rgb(217,119,87)\",pink_FOR_SUBAGENTS_ONLY:\"rgb(196,102,134)\",cyan_FOR_SUBAGENTS_ONLY:\"rgb(8,145,178)\",professionalBlue:\"rgb(106,155,204)\",chromeYellow:\"rgb(251,188,4)\",clawd_body:\"rgb(215,119,87)\"",
+      "replace": "diffRemovedWord:\"rgb(209,69,75)\",red_FOR_SUBAGENTS_ONLY:\"rgb(220,38,38)\",blue_FOR_SUBAGENTS_ONLY:\"rgb(106,155,204)\",green_FOR_SUBAGENTS_ONLY:\"rgb(22,163,74)\",yellow_FOR_SUBAGENTS_ONLY:\"rgb(202,138,4)\",purple_FOR_SUBAGENTS_ONLY:\"rgb(130,125,189)\",orange_FOR_SUBAGENTS_ONLY:\"rgb(217,119,87)\",pink_FOR_SUBAGENTS_ONLY:\"rgb(196,102,134)\",cyan_FOR_SUBAGENTS_ONLY:\"rgb(8,145,178)\",professionalBlue:\"rgb(106,155,204)\",chromeYellow:\"rgb(251,188,4)\",clawd_body:\"rgb(188,19,254)\"",
+      "patched_anchor": "diffRemovedWord:\"rgb(209,69,75)\",red_FOR_SUBAGENTS_ONLY:\"rgb(220,38,38)\",blue_FOR_SUBAGENTS_ONLY:\"rgb(106,155,204)\",green_FOR_SUBAGENTS_ONLY:\"rgb(22,163,74)\",yellow_FOR_SUBAGENTS_ONLY:\"rgb(202,138,4)\",purple_FOR_SUBAGENTS_ONLY:\"rgb(130,125,189)\",orange_FOR_SUBAGENTS_ONLY:\"rgb(217,119,87)\",pink_FOR_SUBAGENTS_ONLY:\"rgb(196,102,134)\",cyan_FOR_SUBAGENTS_ONLY:\"rgb(8,145,178)\",professionalBlue:\"rgb(106,155,204)\",chromeYellow:\"rgb(251,188,4)\",clawd_body:\"rgb(188,19,254)\""
+    }
+  ],
+  "archived": true,
+  "archive_reason": "banner color anchor absent on 2.1.158; needs re-derivation"
+}

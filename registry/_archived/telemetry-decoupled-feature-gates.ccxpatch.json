@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "telemetry-decoupled-feature-gates",
+  "name": "Decouple feature gates from DISABLE_TELEMETRY",
+  "group": "behavior",
+  "level": "binary",
+  "description": "Restores 1M context access and /remote-control when DISABLE_TELEMETRY (or DO_NOT_TRACK) is set, while keeping telemetry fully env-driven. (1) isExtraUsageEnabled: an undefined (not-yet-loaded) extra-u",
+  "archived": true,
+  "archive_reason": "excluded-by-policy: restores paid 1M context + /remote-control and reworks telemetry gating (entitlement + telemetry).",
+  "provenance": {
+    "source_repo": "gist:ahundt/158d498f07a10fec4955a70bf475a20b",
+    "source_url": "https://gist.github.com/ahundt/158d498f07a10fec4955a70bf475a20b",
+    "author": "ahundt",
+    "license": "unknown",
+    "derived_by": "reverse-engineered + re-anchored to 2.1.158 minified ids (PS7/Lx/Rx/S_) from gist's 2.1.76/2.1.77 ids (bf7/Ij7/Ai/hi); verified same-length unique anchors on pristine binary"
+  },
+  "applies_to": {
+    "containers": [],
+    "version_range": ">=2.1.0 <3.0.0"
+  },
+  "operations": []
+}
