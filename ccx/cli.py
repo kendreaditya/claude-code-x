@@ -74,6 +74,9 @@ def cmd_status(args) -> int:
 
 
 def _select(args, defs: list[PatchDef]) -> list[PatchDef]:
+    if getattr(args, "from_manifest", False):
+        ids = Manifest.open(args.profile).applied_ids()
+        return [d for d in defs if d.id in ids]
     if args.group:
         return [d for d in defs if d.group == args.group]
     if args.all_applicable:
@@ -151,6 +154,33 @@ def cmd_apply(args) -> int:
     return rc
 
 
+def cmd_hook(args) -> int:
+    from . import hookmgr
+    if args.action == "install":
+        rep = hookmgr.install()
+    else:
+        rep = hookmgr.remove()
+    print(f"  hook {args.action}: {rep}")
+    return 0
+
+
+def cmd_verify_effect(args) -> int:
+    t = _resolve_target(args)
+    rc = 0
+    for pid in args.ids:
+        pd = load_one(pid)
+        if pd is None:
+            warn(f"unknown patch id: {pid}")
+            rc = 2
+            continue
+        rep = engine.verify_effect(pd, t)
+        print(f"  {pid:<28} state={rep['state']:<10} effect={rep['effect']}")
+        print(f"        {rep['detail']}")
+        if rep["effect"] == "effect-FAILED":
+            rc = 1
+    return rc
+
+
 def cmd_revert(args) -> int:
     t = _resolve_target(args)
     mf = Manifest.open(args.profile)
@@ -176,8 +206,10 @@ def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="ccx", description="claudius-code universal patcher")
     p.add_argument("--version", action="version", version=f"ccx {__version__}")
     p.add_argument("--target", help="path to the Claude Code binary/launcher")
-    p.add_argument("--profile", default="default", help="manifest profile")
     sub = p.add_subparsers(dest="cmd", required=True)
+
+    def add_profile(sp):
+        sp.add_argument("--profile", default="default", help="manifest profile")
 
     sp = sub.add_parser("detect", help="print version/container/signing facts")
     sp.set_defaults(func=cmd_detect)
@@ -189,20 +221,33 @@ def build_parser() -> argparse.ArgumentParser:
     sp.set_defaults(func=cmd_list)
 
     sp = sub.add_parser("status", help="what's applied to the current binary")
+    add_profile(sp)
     sp.set_defaults(func=cmd_status)
 
     sp = sub.add_parser("apply", help="apply patches")
     sp.add_argument("ids", nargs="*")
     sp.add_argument("--group")
     sp.add_argument("--all-applicable", action="store_true")
+    sp.add_argument("--from-manifest", action="store_true",
+                    help="re-apply every patch recorded in the manifest (idempotent; used by the repair hook)")
     sp.add_argument("--dry-run", action="store_true")
     sp.add_argument("--yes", "-y", action="store_true")
+    add_profile(sp)
     sp.set_defaults(func=cmd_apply)
+
+    sp = sub.add_parser("hook", help="manage the SessionStart auto-repair hook")
+    sp.add_argument("action", choices=["install", "remove"])
+    sp.set_defaults(func=cmd_hook)
+
+    sp = sub.add_parser("verify-effect", help="classify a patch's runtime effect (M2)")
+    sp.add_argument("ids", nargs="+")
+    sp.set_defaults(func=cmd_verify_effect)
 
     sp = sub.add_parser("revert", help="revert patches")
     sp.add_argument("ids", nargs="*")
     sp.add_argument("--group")
     sp.add_argument("--all", action="store_true")
+    add_profile(sp)
     sp.set_defaults(func=cmd_revert)
     return p
 

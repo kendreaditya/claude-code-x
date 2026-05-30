@@ -26,6 +26,10 @@
     "verified_on": ["2.1.158"]
   },
   "allow_variable_length": false,
+  "effect_probe": {
+    "kind": "interactive-only",
+    "note": "FIFO queue draining is only observable in an interactive session (type while a turn runs); no headless --print probe exists. Edits land in the main CJS module proven to execute plaintext (see docs/M2-bytecode-finding.md)."
+  },
   "marker": {
     "kind": "TODO-dedicated-inert-marker",
     "note": "M3: introduce a dedicated /*ccx:fifo*/ comment marker decoupled from the behavioral edits below. Until then, per-op patched_anchor provides 3-state detection."

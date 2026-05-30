@@ -10,7 +10,7 @@ import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from . import backup, sign, verify
+from . import backup, effect, sign, verify
 from .anchors import OpResolution, OpState, ResolvedEdit, resolve_op
 from .detect import Target
 from .manifest import Manifest, b64, unb64
@@ -126,17 +126,29 @@ def apply_patch(pd: PatchDef, target: Target, profile: str = "default",
         "path": str(binary), "version": target.version,
         "container": target.container, "signed": target.signed,
     })
+    eff_status, eff_detail = effect.classify(binary, edits, pd.data.get("effect_probe"))
     mf.upsert({
         "id": pd.id, "name": pd.name, "group": pd.group, "level": pd.level,
         "source": pd.provenance,
         "edits": [{"op_id": e.op_id, "offset": e.offset,
                    "original_b64": b64(e.old_bytes), "patched_b64": b64(e.new_bytes),
                    "same_length": e.same_length} for e in edits],
-        "resign": resign_meta,
+        "resign": resign_meta, "effect": eff_status,
     })
     mf.save()
     return {"id": pd.id, "result": "applied", "plan": plan,
-            "verify": vr.checks, "edits": len(edits)}
+            "verify": vr.checks, "edits": len(edits),
+            "effect": eff_status, "effect_detail": eff_detail}
+
+
+def verify_effect(pd: PatchDef, target: Target) -> dict:
+    """Classify the runtime effect of an applied patch (M2)."""
+    data = target.path.read_bytes()
+    res = resolve(pd, data)
+    edits = [o.edit for o in res.ops if o.edit] or []
+    # if applied, edits resolve to patched form; reconstruct from anchors regardless
+    status, detail = effect.classify(target.path, edits, pd.data.get("effect_probe"))
+    return {"id": pd.id, "state": res.state, "effect": status, "detail": detail}
 
 
 def revert_patch(patch_id: str, target: Target, profile: str = "default") -> dict:
