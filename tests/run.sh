@@ -9,4 +9,7 @@ python3 tests/test_m2_canary.py "$PRISTINE" || rc=1
 echo
 echo "== engine end-to-end =="
 python3 tests/test_engine.py "$PRISTINE" || rc=1
+echo
+echo "== extension / edge cases =="
+python3 tests/test_extension.py "$PRISTINE" || rc=1
 exit $rc

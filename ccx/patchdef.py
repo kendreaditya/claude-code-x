@@ -78,11 +78,19 @@ def version_compatible(pd: PatchDef, version: str | None) -> bool:
 
 
 def container_compatible(pd: PatchDef, container: str) -> bool:
+    """True if the target container matches any declared container.
+
+    Declared containers carry a `-bun` suffix (e.g. "macho-arm64-bun"); the
+    detected container does not (e.g. "macho-arm64"). Compare on the base.
+    """
     cs = pd.applies_to.get("containers")
     if not cs:
         return True
-    return any(container.startswith(c.split("-bun")[0].rsplit("-", 0)[0]) or c.startswith(container)
-               or container == c for c in cs) or container in cs
+    for c in cs:
+        base = c[:-4] if c.endswith("-bun") else c
+        if container == base or container.startswith(base) or base.startswith(container):
+            return True
+    return False
 
 
 def load_all(include_archived: bool = False) -> list[PatchDef]:
