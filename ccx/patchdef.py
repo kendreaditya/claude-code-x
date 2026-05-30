@@ -1,7 +1,7 @@
 """Load patch definitions from the registry (and user customs).
 
 A patch definition is pure data; the engine is generic. Definitions live in
-registry/<group>/<id>.ccxpatch.json (built-ins) and ~/.claudius-code/registry/
+registry/<group>/<id>.ccxpatch.json (built-ins) and ~/.claude-code-x/registry/
 (user customs). Patches that don't apply to the latest version live under
 registry/_archived/.
 """

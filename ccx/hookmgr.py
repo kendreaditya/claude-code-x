@@ -1,6 +1,6 @@
 """SessionStart repair-hook management (M3).
 
-`ccx hook install` copies the repair hook into ~/.claudius-code/hooks/ and adds a
+`ccx hook install` copies the repair hook into ~/.claude-code-x/hooks/ and adds a
 SessionStart entry to ~/.claude/settings.json (backing it up first). `ccx hook
 remove` reverses it. Settings edits are minimal and idempotent.
 """

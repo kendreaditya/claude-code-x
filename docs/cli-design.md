@@ -1,6 +1,6 @@
-# claudius-code — Universal Patcher: CLI UX + Architecture Design
+# claude-code-x — Universal Patcher: CLI UX + Architecture Design
 
-`claudius-code` (binary name: `ccx`) is a universal, version-aware, provenance-respecting patcher for the Bun-compiled Claude Code CLI. It applies curated community patches (and user-supplied custom patches) using the highest-resilience intervention layer a given target version supports, always citing the origin repo/author/license, recording a manifest of what was applied, and supporting clean revert.
+`claude-code-x` (binary name: `ccx`) is a universal, version-aware, provenance-respecting patcher for the Bun-compiled Claude Code CLI. It applies curated community patches (and user-supplied custom patches) using the highest-resilience intervention layer a given target version supports, always citing the origin repo/author/license, recording a manifest of what was applied, and supporting clean revert.
 
 This document specifies the command surface, group presentation/selection, the custom-patch path, the source-citation system, version detection + compatibility resolution, and the repo/file layout. Implementation language is chosen and justified at the end.
 
@@ -73,7 +73,7 @@ Container: Mach-O arm64 · __BUN segment present · adhoc-signed (com.anthropic.
 Backup:    cli.bak.2026-05-30T17-22-04Z (140,951,552 bytes — matches expected)
 Profile:   default
 
-Applied patches (manifest: ~/.claudius-code/manifests/default.json):
+Applied patches (manifest: ~/.claude-code-x/manifests/default.json):
   fifo-steering-queue   binary   applied ✓ (marker found, signature valid, launches OK)
   plain-thinking-words  binary   CORRUPTED ✗ (marker present but anchor region altered)
 
@@ -182,7 +182,7 @@ User-supplied patches (§5). Subforms:
 - `ccx custom apply <file.ccxpatch.json>` — load and apply a patch-definition file.
 - `ccx custom scaffold > my.ccxpatch.json` — emit a template patch definition.
 - `ccx custom validate <file>` — lint a definition (anchor resolves? length policy sane? marker unique?) without applying.
-- `ccx custom list` — show user patches registered under `~/.claudius-code/registry/`.
+- `ccx custom list` — show user patches registered under `~/.claude-code-x/registry/`.
 
 ### 2.10 Misc
 
@@ -286,7 +286,7 @@ Provenance is enforced at three touchpoints:
 
 **(1) On apply — mandatory citation block.** Before any mutation (and always in `--dry-run`), `ccx` prints, per patch: source repo, author, license, intervention level, and the resolved anchor. Licenses are normalized to an SPDX-ish enum (`MIT`, `unknown`, `unlicensed`, `educational-only`, `unlicensed-local`). Anything not clearly redistributable (`unknown` / `educational-only` / `unlicensed`) prints a `⚠` advisory ("source license is X — review before redistribution"). This makes the legal posture visible exactly when the user acts. (Catalog reality: many entries are `unknown`; the MIT-safe internals to lean on are patchkit, depester, cache-fix.)
 
-**(2) Generated manifest — what's applied + provenance.** Each successful apply appends/updates an entry in `~/.claudius-code/manifests/<profile>.json`:
+**(2) Generated manifest — what's applied + provenance.** Each successful apply appends/updates an entry in `~/.claude-code-x/manifests/<profile>.json`:
 
 ```json
 {
@@ -307,7 +307,7 @@ Provenance is enforced at three touchpoints:
       "layer": "binary",
       "applied_at": "2026-05-30T17:31:10Z",
       "ccx_version": "0.4.0",
-      "source": { "repo": "kendreaditya/claudius-code", "author": "kendreaditya", "license": "unknown" },
+      "source": { "repo": "kendreaditya/claude-code-x", "author": "kendreaditya", "license": "unknown" },
       "anchor_resolved": "new Set([\"prompt\",\"task-notification\"])",
       "marker": "ccx:fifo-steering-queue",
       "edits": [ { "file_offset": 193186496, "len": 47, "original_b64": "…", "patched_b64": "…", "same_length": true } ],
@@ -327,7 +327,7 @@ $ ccx credits --applied
 Patches currently applied (profile: default)
 
   FIFO Steering and Queue Bundling
-    repo:    kendreaditya/claudius-code
+    repo:    kendreaditya/claude-code-x
     author:  kendreaditya
     license: unknown  ⚠ review before redistribution
     level:   binary
@@ -366,7 +366,7 @@ The matrix is data (`core/compat-matrix.json`), so new versions/formats are onbo
 ## 8. Repository / file layout
 
 ```
-claudius-code/
+claude-code-x/
 ├─ bin/
 │  └─ ccx                      # CLI entrypoint (arg parse → command dispatch)
 ├─ core/                       # the engine (container-aware, layer-aware)
@@ -410,9 +410,9 @@ claudius-code/
 └─ README.md
 ```
 
-User state (outside the repo): `~/.claudius-code/`
+User state (outside the repo): `~/.claude-code-x/`
 ```
-~/.claudius-code/
+~/.claude-code-x/
 ├─ manifests/<profile>.json    # what's applied + provenance + inverse data
 ├─ backups/cli.bak.<ts>        # timestamped pristine + intermediate backups
 ├─ registry/                   # user custom patch defs (ccx custom add/apply)
@@ -425,7 +425,7 @@ Each `registry/<group>/<id>.ccxpatch.json` carries: `id, name, group, descriptio
 
 ## 9. Implementation language choice
 
-**Python (3.11+), packaged as a single self-contained CLI (`pipx install claudius-code` / standalone build), with `LIEF` as the binary engine.**
+**Python (3.11+), packaged as a single self-contained CLI (`pipx install claude-code-x` / standalone build), with `LIEF` as the binary engine.**
 
 Justification, tied to the technique analysis:
 

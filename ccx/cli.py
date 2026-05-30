@@ -203,7 +203,7 @@ def cmd_revert(args) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="ccx", description="claudius-code universal patcher")
+    p = argparse.ArgumentParser(prog="ccx", description="claude-code-x universal patcher")
     p.add_argument("--version", action="version", version=f"ccx {__version__}")
     p.add_argument("--target", help="path to the Claude Code binary/launcher")
     sub = p.add_subparsers(dest="cmd", required=True)

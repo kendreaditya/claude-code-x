@@ -1,6 +1,6 @@
 # Prior Art
 
-Community projects that patch or modify Claude Code's behavior. `claudius-code`
+Community projects that patch or modify Claude Code's behavior. `claude-code-x`
 aims to be a universal CLI that aggregates many of these as selectable,
 **attributed** patches (see [GOAL.md](./GOAL.md)). Every patch this project
 ships will cite its origin repo, author, and license — this file is the seed of
@@ -50,7 +50,7 @@ change), **prompt** (copy-paste behavior instructions), **build**, **manager**
 
 ## Technique lessons (mined for the engine)
 
-- **Landmark-anchored, version-agnostic locators** — anchor on invariant string literals / AST shape, capture the churned minified identifier in a regex group, reuse it in the replacement. (buddy-crack, claudius-code.)
+- **Landmark-anchored, version-agnostic locators** — anchor on invariant string literals / AST shape, capture the churned minified identifier in a regex group, reuse it in the replacement. (buddy-crack, claude-code-x.)
 - **Version-gate + capability matrix** — `(version, container format) → available patch layers`; refuse on unknown. (patcher-next.)
 - **Marker-based idempotency + context guard** — recognize the patched state so re-running is a no-op. (patchkit.)
 - **LIEF unpack / repack** for variable-length edits. (depester.)
@@ -58,7 +58,7 @@ change), **prompt** (copy-paste behavior instructions), **build**, **manager**
 
 ## Positioning
 
-No project in this set does `claudius-code`'s specific behavioral patch (kill
+No project in this set does `claude-code-x`'s specific behavioral patch (kill
 mid-turn `<system-reminder>` steering + queue bundling → pure FIFO). Only
 `taocihei/claude-code-patcher-next` and `huybuidac/claude-code-patchkit` attempt
 to be a *manager* of many patches — the space for a well-attributed, grouped,

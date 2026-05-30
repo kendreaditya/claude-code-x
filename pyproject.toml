@@ -1,5 +1,5 @@
 [project]
-name = "claudius-code"
+name = "claude-code-x"
 version = "0.1.0"
 description = "Universal CLI patcher for the Claude Code binary (provenance-respecting, version-aware)"
 readme = "README.md"
@@ -13,7 +13,7 @@ dependencies = []
 ccx = "ccx.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/kendreaditya/claudius-code"
+Homepage = "https://github.com/kendreaditya/claude-code-x"
 
 [build-system]
 requires = ["setuptools>=61"]

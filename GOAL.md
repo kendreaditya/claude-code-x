@@ -1,8 +1,8 @@
-# claudius-code — Universal CLI Patcher
+# claude-code-x — Universal CLI Patcher
 
 ## Goal
 
-`claudius-code` (binary: `ccx`) is a universal, version-aware, provenance-respecting patcher for the Bun-compiled Claude Code CLI. Its north star is to let a user apply, inspect, and cleanly revert curated community patches — and their own custom patches — against the locally installed Claude Code binary using the highest-resilience intervention layer that the detected version supports, never hardcoding offsets, always citing each patch's origin repo/author/license, recording a verifiable manifest of what changed, and refusing to touch the binary whenever it cannot reproduce a patch's precondition. The first shipped capability is the existing `claudius-code` FIFO/noqueue patch, ported into the new declarative registry format and driven end-to-end by the same engine that every future patch will use.
+`claude-code-x` (binary: `ccx`) is a universal, version-aware, provenance-respecting patcher for the Bun-compiled Claude Code CLI. Its north star is to let a user apply, inspect, and cleanly revert curated community patches — and their own custom patches — against the locally installed Claude Code binary using the highest-resilience intervention layer that the detected version supports, never hardcoding offsets, always citing each patch's origin repo/author/license, recording a verifiable manifest of what changed, and refusing to touch the binary whenever it cannot reproduce a patch's precondition. The first shipped capability is the existing `claude-code-x` FIFO/noqueue patch, ported into the new declarative registry format and driven end-to-end by the same engine that every future patch will use.
 
 ## The Patching Problem & Chosen Approach
 
@@ -67,7 +67,7 @@ Global flags: `--target <path>`, `--dry-run`, `--yes/-y`, `--json`, `--no-color`
 ### Repo layout
 
 ```
-claudius-code/
+claude-code-x/
 ├─ bin/ccx                       # entrypoint: arg parse → command dispatch
 ├─ core/
 │  ├─ detect.py                  # install location, container sniff, version + Bun + signing
@@ -82,7 +82,7 @@ claudius-code/
 ├─ CREDITS.md   tests/   README.md
 ```
 
-User state (outside repo): `~/.claudius-code/{manifests/<profile>.json, backups/cli.bak.<ts>, registry/, proxy/extensions/*.mjs}`.
+User state (outside repo): `~/.claude-code-x/{manifests/<profile>.json, backups/cli.bak.<ts>, registry/, proxy/extensions/*.mjs}`.
 
 The intervention ladder (highest-resilience-first) is `proxy > runtime > source > binary`. The capability matrix (`native-bun-binary` 2.1.x+ supports proxy/runtime/binary but **not** source; `legacy-cli-js` 2.0.x adds source; `unknown` → refuse). Implementation language: **Python 3.11+** packaged via `pipx`, with LIEF as the (future) variable-length engine and platform signers shelled out to.
 
@@ -92,7 +92,7 @@ Groups are the primary organizing axis everywhere a patch list appears: **behavi
 
 | id | name | group | level | source repo (author) | license |
 |---|---|---|---|---|---|
-| `fifo-steering-queue` | FIFO Steering and Queue Bundling | behavior | binary | kendreaditya/claudius-code (kendreaditya) | unknown* |
+| `fifo-steering-queue` | FIFO Steering and Queue Bundling | behavior | binary | kendreaditya/claude-code-x (kendreaditya) | unknown* |
 | `denerf-system-prompt` | De-nerf System Prompt | behavior | source | roman01la/patch-claude-code gist (roman01la) | unknown |
 | `expand-thinking-traces` | Expand Thinking Traces by Default | behavior | binary | aleks-apostle/claude-code-patches (aleks-apostle) | unknown |
 | `inline-files-thinking` | Inline Files-Read and Streamed Thinking | behavior | binary | a-connoisseur/patch-claude-code (a-connoisseur) | unknown |
@@ -113,7 +113,7 @@ Groups are the primary organizing axis everywhere a patch list appears: **behavi
 | `local-model-runnable` | Run Leaked CC with Local Models | models | source | changzhiai/claude-code-patch (changzhiai) | unknown |
 | `channels-no-oauth` | Channels Without OAuth | privacy | binary | genusdryasnizhninovgorod936/claude-channels-patch | unknown |
 
-\* The MIT license on the `kendreaditya/claudius-code` scripts covers the *patch scripts*, not the patched Anthropic binary (see Attribution & Licensing). MIT-clean **engine internals** to lean on as references: LIEF unpack/repack pattern (ominiverdi/claude-depester), context-guard / marker idempotency (huybuidac/claude-code-patchkit), API-boundary proxy + fail-to-no-op (cnighswonger/claude-code-cache-fix), version-gate + capability matrix (taocihei/claude-code-patcher-next).
+\* The MIT license on the `kendreaditya/claude-code-x` scripts covers the *patch scripts*, not the patched Anthropic binary (see Attribution & Licensing). MIT-clean **engine internals** to lean on as references: LIEF unpack/repack pattern (ominiverdi/claude-depester), context-guard / marker idempotency (huybuidac/claude-code-patchkit), API-boundary proxy + fail-to-no-op (cnighswonger/claude-code-cache-fix), version-gate + capability matrix (taocihei/claude-code-patcher-next).
 
 ### Reference patch: `fifo-steering-queue` (the MVP port)
 
@@ -128,7 +128,7 @@ Three same-length, landmark-anchored ops, each capturing the churned minified id
 Provenance is enforced at three touchpoints:
 
 1. **On apply — mandatory citation block.** Before any mutation (and always in `--dry-run`), `ccx` prints per patch: source repo, author, license, intervention level, resolved anchor. Licenses normalize to an SPDX-ish enum (`MIT`, `unknown`, `unlicensed`, `educational-only`, `unlicensed-local`); anything not clearly redistributable prints a `⚠` advisory exactly when the user acts. (Catalog reality: nearly all community entries are `unknown`.)
-2. **Generated manifest.** Each successful apply appends a provenance-bearing entry to `~/.claudius-code/manifests/<profile>.json`: target facts, the patch's `source{repo,author,license}`, resolved anchor, marker, per-edit original/patched bytes (base64, for surgical inverse), backup name, and re-sign metadata. The manifest is the single source of truth for `status`, `revert`, `doctor`, and SessionStart re-apply.
+2. **Generated manifest.** Each successful apply appends a provenance-bearing entry to `~/.claude-code-x/manifests/<profile>.json`: target facts, the patch's `source{repo,author,license}`, resolved anchor, marker, per-edit original/patched bytes (base64, for surgical inverse), backup name, and re-sign metadata. The manifest is the single source of truth for `status`, `revert`, `doctor`, and SessionStart re-apply.
 3. **`ccx credits` — standing ledger.** Renders provenance for the whole catalog or just the applied set, exportable as Markdown / JSON / NOTICE. This is what ships in `CREDITS.md` and what a user runs to honor attribution before sharing. User-authored customs are listed distinctly under "Local / user-supplied" (`local/<user>`, `unlicensed-local`) so applied state is never misattributed to a community author.
 
 **ToS / legal caveat (load-bearing, surfaced to the user — not assumed away):** patching and redistributing a modified, re-signed Anthropic binary **plausibly violates the Claude Code / Anthropic Consumer ToS and copyright, regardless of the MIT license on the patch *scripts*.** The MIT license covers the scripts, **not** the patched binary, which remains Anthropic's copyrighted work; the pervasive `license: unknown` on community patches compounds this. `ccx credits` and the README must state plainly that **a patched binary must not be redistributed** and that **running it may breach Anthropic's terms.** The tool is positioned as a *local-only*, build-it-yourself patcher; nothing about MIT on the scripts sanitizes redistribution of the modified binary.

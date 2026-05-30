@@ -1,6 +1,6 @@
 ## Patching Engine
 
-The patching engine is the core of the `claudius-code` universal patcher: the component that takes a declarative **patch definition** and a target Claude Code binary, and safely produces a patched, re-signed, launchable binary — or refuses to touch anything. It is built around one non-negotiable invariant inherited from the binary recon:
+The patching engine is the core of the `claude-code-x` universal patcher: the component that takes a declarative **patch definition** and a target Claude Code binary, and safely produces a patched, re-signed, launchable binary — or refuses to touch anything. It is built around one non-negotiable invariant inherited from the binary recon:
 
 > **The JS lives inside the `__BUN` Mach-O segment as raw plaintext. Same-length edits within a module's declared `contents` region invalidate *only* the code signature — nothing else. Every length change cascades into Bun StringPointer fixups + Mach-O `__LINKEDIT` fixups. Therefore: same-length is the default and the fast path; variable-length is an explicit, gated advanced mode.**
 
@@ -132,7 +132,7 @@ Patches are **declarative JSON** (one file per patch in `patches/`, loaded by th
     "source_repo": "owner/repo",
     "source_url": "https://…",
     "license": "MIT | unknown | …",
-    "derived_by": "claudius-code",
+    "derived_by": "claude-code-x",
     "source_landmarks": ["src/utils/attachments.ts", "…"]  // recon anchors
   },
 
@@ -215,7 +215,7 @@ If **all** ops are `already-patched`, the engine prints `[skip] all patches appl
 
 The `marker` should be a sequence that **cannot occur naturally** in minifier output — e.g. the `q.mode===q.mode` tautology. Its presence is a self-describing "this binary is patched" signal that travels *with the binary*, so there's no sentinel file to drift out of sync (this is what the SessionStart hook greps for).
 
-**Rollback** is a first-class command (`claudius-code restore`):
+**Rollback** is a first-class command (`claude-code-x restore`):
 
 ```bash
 cp <binary>.unpatched <binary>
@@ -256,7 +256,7 @@ Design (matching the shipped `claude-session-start-repatch.sh`, generalized to t
 
 - **In-binary detection, not a sentinel file.** `grep -q '<marker>'` on the resolved binary. The marker (e.g. `q.mode===q.mode`) travels with the binary, so it can't drift out of sync with a sidecar state file. Grep on the 200 MB binary is <10 ms — cheap enough for every startup.
 - **Fast path:** marker present → exit 0 silently.
-- **Repatch path:** marker absent (an update landed) → run the engine's apply pipeline, logging to `/tmp/claudius-repatch.log`.
+- **Repatch path:** marker absent (an update landed) → run the engine's apply pipeline, logging to `/tmp/ccx-repair.log`.
 - **Recursion guard:** the engine's smoke-test spawns `claude --version`, which would re-enter the hook. Guard with an env flag (`CLAUDIUS_REPATCH_INFLIGHT=1`) and exit early if set.
 - **Non-blocking failure:** `SessionStart` exit codes can block the session, so on patch failure the hook logs + warns to stderr but **exits 0** — a failed repatch must never prevent the user from starting a session. The warning points at the log and notes the byte fingerprints may need re-deriving for the new release.
 
@@ -268,7 +268,7 @@ Registration (`~/.claude/settings.json`):
     "SessionStart": [
       { "matcher": "startup",
         "hooks": [{ "type": "command",
-                    "command": "~/.config/scripts/claudius-session-start-repatch.sh" }] }
+                    "command": "~/.config/scripts/ccx hook" }] }
     ]
   }
 }
@@ -278,7 +278,7 @@ Registration (`~/.claude/settings.json`):
 
 ### 7. Concrete patch definition — the FIFO/noqueue patch
 
-This is the `fifo-steering-queue` catalog entry (`kendreaditya/claudius-code`), expressed in the schema. It carries all three operations from the reference script, each anchored on stable literals with the churned minified identifier captured dynamically.
+This is the `fifo-steering-queue` catalog entry (`kendreaditya/claude-code-x`), expressed in the schema. It carries all three operations from the reference script, each anchored on stable literals with the churned minified identifier captured dynamically.
 
 ```json
 {
@@ -288,10 +288,10 @@ This is the `fifo-steering-queue` catalog entry (`kendreaditya/claudius-code`), 
   "group": "behavior",
   "description": "Makes queued user input behave as a pure FIFO queue: no mid-turn <system-reminder> steering of the running turn, and no bundling of multiple queued messages into one turn. Each message gets its own complete turn, in order.",
   "provenance": {
-    "source_repo": "kendreaditya/claudius-code",
-    "source_url": "https://github.com/kendreaditya/claudius-code",
+    "source_repo": "kendreaditya/claude-code-x",
+    "source_url": "https://github.com/kendreaditya/claude-code-x",
     "license": "MIT",
-    "derived_by": "claudius-code",
+    "derived_by": "claude-code-x",
     "source_landmarks": [
       "src/utils/attachments.ts (INLINE_NOTIFICATION_MODES Set)",
       "src/utils/queueProcessor.ts (processQueueIfReady bash branch)",
@@ -353,4 +353,4 @@ This is the `fifo-steering-queue` catalog entry (`kendreaditya/claudius-code`), 
 6. **Re-sign** ad-hoc with `--preserve-metadata=entitlements,flags,identifier` (keeps JIT/unsigned-memory entitlements so JSC doesn't crash).
 7. **Atomic swap** + `claude --version` smoke-test; on failure auto-restore from `.unpatched`.
 
-Files in the reference implementation this design generalizes: `/Users/kendreaditya/workspace/claudius-code/repatch-claude-noqueue.sh` (the three locators, same-length discipline, abort-before-write, ad-hoc re-sign), `/Users/kendreaditya/workspace/claudius-code/claude-session-start-repatch.sh` (marker-grep detection, recursion guard, non-blocking exit 0), and `/Users/kendreaditya/workspace/claudius-code/README.md` (rollback procedure, caveats).
+Files in the reference implementation this design generalizes: `/Users/kendreaditya/workspace/claude-code-x/repatch-claude-noqueue.sh` (the three locators, same-length discipline, abort-before-write, ad-hoc re-sign), `/Users/kendreaditya/workspace/claude-code-x/claude-session-start-repatch.sh` (marker-grep detection, recursion guard, non-blocking exit 0), and `/Users/kendreaditya/workspace/claude-code-x/README.md` (rollback procedure, caveats).

@@ -1,4 +1,4 @@
-# claudius-code
+# claude-code-x
 
 A set of in-place patches for the [Claude Code](https://claude.com/claude-code) CLI binary that make queued user input behave as a pure FIFO queue — no mid-turn steering, no message bundling.
 
@@ -11,7 +11,7 @@ By default, Claude Code "soft-steers" the running turn when you type while it wo
 - **Mid-turn injection** — a message you type mid-turn is rendered into the model's context as a `<system-reminder>` ("The user sent a new message while you were working… you MUST address it"). The strong language often makes the model pivot mid-stream.
 - **Queue bundling** — multiple queued messages of the same mode are dequeued together and delivered as a *single* user turn, so three quick messages become one combined response.
 
-`claudius-code` neutralizes both so input behaves as a strict FIFO: **each message gets its own complete turn, in order, with no mid-flight steer.**
+`claude-code-x` neutralizes both so input behaves as a strict FIFO: **each message gets its own complete turn, in order, with no mid-flight steer.**
 
 > **Where this is heading:** the current script is a single, hard-coded patch.
 > The roadmap is a universal, version-aware CLI (`ccx`) that aggregates many

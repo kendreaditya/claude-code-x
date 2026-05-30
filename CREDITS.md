@@ -1,6 +1,6 @@
 # Credits
 
-`claudius-code` aggregates patch *techniques and ideas* from the community. Each
+`claude-code-x` aggregates patch *techniques and ideas* from the community. Each
 patch shipped in `registry/` carries a `provenance` block citing its origin repo,
 author, and license; `ccx credits` (planned) renders this ledger from the
 registry + applied manifest.
@@ -22,5 +22,5 @@ in this repo covers **the patch scripts and `*.ccxpatch.json` definitions only**
 **not** the patched Claude Code binary, which remains Anthropic's copyrighted
 work. Patching it locally for your own use is one thing; **redistributing a
 modified, re-signed binary plausibly violates Anthropic's terms and copyright.**
-`claudius-code` is a local-only, build-it-yourself patcher. Do not distribute
+`claude-code-x` is a local-only, build-it-yourself patcher. Do not distribute
 patched binaries.

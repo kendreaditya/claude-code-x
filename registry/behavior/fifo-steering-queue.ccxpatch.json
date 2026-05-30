@@ -6,8 +6,8 @@
   "level": "binary",
   "description": "Make queued user input behave as a pure FIFO queue: no mid-turn <system-reminder> steering, no per-mode bundling. Each queued message drains one-at-a-time as its own turn.",
   "provenance": {
-    "source_repo": "kendreaditya/claudius-code",
-    "source_url": "https://github.com/kendreaditya/claudius-code",
+    "source_repo": "kendreaditya/claude-code-x",
+    "source_url": "https://github.com/kendreaditya/claude-code-x",
     "author": "kendreaditya",
     "license": "MIT",
     "license_note": "MIT covers these patch scripts/definitions, NOT the patched Anthropic binary. Do not redistribute the patched binary.",

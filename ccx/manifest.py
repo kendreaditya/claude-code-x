@@ -1,6 +1,6 @@
 """Applied-patch manifest (single source of truth for status/revert/doctor).
 
-Stored at ~/.claudius-code/manifests/<profile>.json. Each entry records provenance
+Stored at ~/.claude-code-x/manifests/<profile>.json. Each entry records provenance
 and, per edit, the original/patched bytes (base64) so revert is a surgical inverse
 that survives re-signing. We deliberately do NOT store file-size as a verification
 field (see verify.py).
@@ -12,7 +12,7 @@ import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
-STATE_DIR = Path.home() / ".claudius-code"
+STATE_DIR = Path.home() / ".claude-code-x"
 MANIFEST_DIR = STATE_DIR / "manifests"
 
 
