@@ -1,2 +1,10 @@
-*.unpatched
+__pycache__/
+.ccx-rollback
 .DS_Store
+*.ccx-tmp
+*.egg-info/
+*.pyc
+*.unpatched
+dist/
+result-*.json
+results/

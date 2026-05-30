@@ -141,6 +141,42 @@ def apply_patch(pd: PatchDef, target: Target, profile: str = "default",
             "effect": eff_status, "effect_detail": eff_detail}
 
 
+def validate_on_copy(pd: PatchDef, target: Target) -> dict:
+    """Apply a patch to a TEMP COPY, smoke-test launch, discard. Used by
+    `ccx validate-all` and release-watch CI — never touches the real binary or
+    manifest."""
+    import shutil
+    import tempfile
+
+    data = target.path.read_bytes()
+    res = resolve(pd, data)
+    if res.state == "applied":
+        return {"id": pd.id, "applies": True, "launch_ok": None, "state": "already-applied"}
+    if not res.applicable:
+        reason = "; ".join(f"{o.op_id}:{o.state.value}" for o in res.ops
+                           if o.state in (OpState.ABSENT, OpState.AMBIGUOUS))
+        return {"id": pd.id, "applies": False, "launch_ok": False, "reason": reason or "not applicable"}
+
+    edits = [o.edit for o in res.ops if o.state == OpState.UNPATCHED and o.edit]
+    with tempfile.TemporaryDirectory() as td:
+        copy = Path(td) / "claude"
+        shutil.copy2(target.path, copy)
+        copy.chmod(0o755)
+        buf = bytearray(data)
+        try:
+            _splice(buf, edits)
+        except PatchError as e:
+            return {"id": pd.id, "applies": False, "launch_ok": False, "reason": str(e)}
+        copy.write_bytes(buf)
+        try:
+            sign.resign(copy, target.container)
+        except sign.SignError as e:
+            return {"id": pd.id, "applies": True, "launch_ok": False, "reason": f"resign: {e}"}
+        launch_ok, detail = verify.smoke_launch(copy)
+        return {"id": pd.id, "applies": True, "launch_ok": launch_ok, "edits": len(edits),
+                "detail": "ok" if launch_ok else detail}
+
+
 def verify_effect(pd: PatchDef, target: Target) -> dict:
     """Classify the runtime effect of an applied patch (M2)."""
     data = target.path.read_bytes()

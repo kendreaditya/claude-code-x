@@ -154,6 +154,50 @@ def cmd_apply(args) -> int:
     return rc
 
 
+def cmd_latest(args) -> int:
+    from . import release
+    try:
+        v = release.latest_version()
+    except Exception as e:  # noqa: BLE001
+        warn(f"could not reach release feed: {e}")
+        return 2
+    print(f"latest published: {v}")
+    try:
+        t = detect(getattr(args, "target", None))
+        print(f"installed:        {t.version}")
+        print(f"  -> {'up to date' if t.version == v else f'newer version {v} available'}")
+    except FileNotFoundError:
+        pass
+    return 0
+
+
+def cmd_validate_all(args) -> int:
+    import json as _json
+    t = _resolve_target(args)
+    defs = load_all(include_archived=args.archived)
+    if args.group:
+        defs = [d for d in defs if d.group == args.group]
+    results = []
+    for pd in defs:
+        if not (version_compatible(pd, t.version) and container_compatible(pd, t.container)):
+            results.append({"id": pd.id, "applies": False, "launch_ok": None,
+                            "reason": "version/container incompatible"})
+            continue
+        results.append(engine.validate_on_copy(pd, t))
+    ok = sum(1 for r in results if r.get("applies") and r.get("launch_ok") in (True, None))
+    if args.json:
+        print(_json.dumps({"version": t.version, "container": t.container,
+                           "results": results}, indent=2))
+    else:
+        print(f"Validating {len(results)} patch(es) against {t.version} ({t.container}):\n")
+        for r in results:
+            glyph = "✓" if (r.get("applies") and r.get("launch_ok") in (True, None)) else "✗"
+            print(f"  {glyph} {r['id']:<28} applies={r.get('applies')} "
+                  f"launch={r.get('launch_ok')} {r.get('reason') or r.get('detail') or ''}")
+        print(f"\n{ok}/{len(results)} patches valid on {t.version}")
+    return 0 if ok == len(results) else 1
+
+
 def cmd_hook(args) -> int:
     from . import hookmgr
     if args.action == "install":
@@ -234,6 +278,15 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--yes", "-y", action="store_true")
     add_profile(sp)
     sp.set_defaults(func=cmd_apply)
+
+    sp = sub.add_parser("latest", help="show latest published vs installed version")
+    sp.set_defaults(func=cmd_latest)
+
+    sp = sub.add_parser("validate-all", help="validate every patch against the target on a temp copy")
+    sp.add_argument("--group")
+    sp.add_argument("--archived", action="store_true")
+    sp.add_argument("--json", action="store_true")
+    sp.set_defaults(func=cmd_validate_all)
 
     sp = sub.add_parser("hook", help="manage the SessionStart auto-repair hook")
     sp.add_argument("action", choices=["install", "remove"])

@@ -1,0 +1,105 @@
+name: release-watch
+
+# Daily check for a new Claude Code release. If a new version is published,
+# download it on each platform, validate every ccx patch against it (apply +
+# launch on a throwaway copy), archive any patch that broke, regenerate the
+# compatibility report, and publish a GitHub Release of the VERIFIED PATCH
+# DEFINITIONS + report.
+#
+# NOTE: this deliberately does NOT publish the patched Claude Code binary.
+# Redistributing a modified, re-signed Anthropic binary would breach Anthropic's
+# ToS/copyright (see CREDITS.md). The release ships patch definitions + a report
+# so users build their own patched binary locally with `ccx`.
+
+on:
+  schedule:
+    - cron: "17 9 * * *"   # daily 09:17 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write   # commit archived patches + create releases
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      new: ${{ steps.c.outputs.new }}
+      version: ${{ steps.c.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - id: c
+        run: python scripts/release_watch.py check
+
+  validate:
+    needs: check
+    if: needs.check.outputs.new == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux-x64
+          - os: macos-14         # Apple Silicon (arm64); has codesign
+            platform: darwin-arm64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install -e .
+      - name: Download Claude Code ${{ needs.check.outputs.version }} (${{ matrix.platform }})
+        run: python scripts/release_watch.py download "${{ needs.check.outputs.version }}" "${{ matrix.platform }}" /tmp/claude
+      - name: Validate all patches
+        run: |
+          python -m ccx --target /tmp/claude validate-all --archived --json \
+            | tee "result-${{ matrix.platform }}.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: result-${{ matrix.platform }}
+          path: result-${{ matrix.platform }}.json
+
+  publish:
+    needs: [check, validate]
+    if: needs.check.outputs.new == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - uses: actions/download-artifact@v4
+        with: { pattern: "result-*", merge-multiple: true, path: results }
+      - name: Build compatibility report + detect broken patches
+        id: r
+        run: python scripts/release_watch.py report results/result-*.json
+      - name: Archive patches that broke on this version
+        if: steps.r.outputs.has_broken == 'true'
+        run: |
+          mkdir -p registry/_archived
+          IFS=',' read -ra B <<< "${{ steps.r.outputs.broken }}"
+          for id in "${B[@]}"; do
+            f="$(grep -rl "\"id\": \"$id\"" registry --include='*.ccxpatch.json' | grep -v _archived | head -1 || true)"
+            [ -n "$f" ] && git mv "$f" "registry/_archived/$(basename "$f")" || true
+          done
+      - name: Commit report + archives
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "release-watch: validate against Claude Code ${{ needs.check.outputs.version }}" || echo "no changes"
+          git push || echo "nothing to push"
+      - name: Package patch definitions
+        run: |
+          mkdir -p dist
+          tar -czf "dist/ccx-patches-${{ needs.check.outputs.version }}.tar.gz" registry ccx pyproject.toml bin
+          cp compat/COMPATIBILITY.md dist/
+      - name: Publish GitHub Release (patch definitions + report; NOT the binary)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: cc-${{ needs.check.outputs.version }}
+          name: "ccx patches — Claude Code ${{ needs.check.outputs.version }}"
+          body_path: compat/COMPATIBILITY.md
+          files: |
+            dist/ccx-patches-${{ needs.check.outputs.version }}.tar.gz
+            dist/COMPATIBILITY.md
