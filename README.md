@@ -13,6 +13,15 @@ By default, Claude Code "soft-steers" the running turn when you type while it wo
 
 `claudius-code` neutralizes both so input behaves as a strict FIFO: **each message gets its own complete turn, in order, with no mid-flight steer.**
 
+> **Where this is heading:** the current script is a single, hard-coded patch.
+> The roadmap is a universal, version-aware CLI (`ccx`) that aggregates many
+> community patches as selectable, **attributed**, grouped options with a custom
+> path — see **[GOAL.md](./GOAL.md)** for the full plan, **[PRIOR-ART.md](./PRIOR-ART.md)**
+> for the patches it builds on, **[CREDITS.md](./CREDITS.md)** for attribution
+> policy, and **[docs/](./docs/)** for the engine + CLI design. The FIFO patch
+> below is the seed, already expressed in the new registry format at
+> [`registry/behavior/fifo-steering-queue.ccxpatch.json`](./registry/behavior/fifo-steering-queue.ccxpatch.json).
+
 ## Patches
 
 | # | Source location | Behavior killed |

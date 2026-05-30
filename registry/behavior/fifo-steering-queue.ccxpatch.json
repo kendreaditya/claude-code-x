@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "id": "fifo-steering-queue",
+  "name": "FIFO Steering and Queue Bundling",
+  "group": "behavior",
+  "description": "Make queued user input behave as a pure FIFO queue: no mid-turn <system-reminder> steering, no per-mode bundling. Each queued message drains one-at-a-time as its own turn.",
+  "provenance": {
+    "source_repo": "kendreaditya/claudius-code",
+    "source_url": "https://github.com/kendreaditya/claudius-code",
+    "author": "kendreaditya",
+    "license": "MIT",
+    "license_note": "MIT covers these patch scripts/definitions, NOT the patched Anthropic binary. Do not redistribute the patched binary.",
+    "derived_by": "byte-fingerprinting the Bun binary against the v2.1.88 TypeScript source reference",
+    "source_landmarks": [
+      "utils/attachments.ts: INLINE_NOTIFICATION_MODES Set",
+      "utils/queueProcessor.ts: processQueueIfReady bash branch",
+      "query.ts: mid-turn removeFromQueue filter",
+      "utils/messages.ts: wrapCommandText reminder text"
+    ]
+  },
+  "applies_to": {
+    "containers": ["macho-arm64-bun", "macho-x64-bun", "elf-x64-bun"],
+    "version_range": ">=2.1.0 <3.0.0",
+    "min_bun": null,
+    "verified_on": ["2.1.158"]
+  },
+  "allow_variable_length": false,
+  "marker": {
+    "kind": "TODO-dedicated-inert-marker",
+    "note": "M3: introduce a dedicated /*ccx:fifo*/ comment marker decoupled from the behavioral edits below. Until then, per-op patched_anchor provides 3-state detection."
+  },
+  "operations": [
+    {
+      "op_id": "inline-notification-modes-drop-prompt",
+      "kind": "landmark-anchored",
+      "rationale": "Remove 'prompt' from INLINE_NOTIFICATION_MODES so user-typed messages are never emitted as queued_command attachments mid-turn. Keep 'task-notification' (load-bearing for background-agent / SleepTool wake-ups).",
+      "must_be_unique": true,
+      "same_length": true,
+      "in_bun_region": true,
+      "anchor": "new Set\\(\\[\"prompt\",\"task-notification\"\\]\\)",
+      "replace": "new Set([\"__off_\",\"task-notification\"])",
+      "patched_anchor": "new Set\\(\\[\"__off_\",\"task-notification\"\\]\\)"
+    },
+    {
+      "op_id": "queueprocessor-force-single-item",
+      "kind": "landmark-anchored",
+      "rationale": "Force every queued command through the single-item dequeue path by making the bash-branch gate tautologically true ('bash' -> q.mode). Disables dequeueAllMatching bundling.",
+      "must_be_unique": true,
+      "same_length": true,
+      "in_bun_region": true,
+      "anchor": "([A-Za-z_$0-9]+)\\(q\\)\\|\\|q\\.mode===\"bash\"",
+      "replace": "\\g<1>(q)||q.mode===q.mode",
+      "patched_anchor": "([A-Za-z_$0-9]+)\\(q\\)\\|\\|q\\.mode===q\\.mode"
+    },
+    {
+      "op_id": "query-midturn-remove-drop-prompt",
+      "kind": "landmark-anchored",
+      "rationale": "Stop the mid-turn removeFromQueue filter from matching prompt-mode commands, so they survive to drain as their own post-turn turns. Keep 'task-notification'.",
+      "must_be_unique": true,
+      "same_length": true,
+      "in_bun_region": true,
+      "anchor": "([A-Za-z_$0-9]+)\\.mode===\"prompt\"\\|\\|\\1\\.mode===\"task-notification\"",
+      "replace": "\\g<1>.mode===\"__off_\"||\\g<1>.mode===\"task-notification\"",
+      "patched_anchor": "([A-Za-z_$0-9]+)\\.mode===\"__off_\"\\|\\|\\1\\.mode===\"task-notification\""
+    }
+  ]
+}
