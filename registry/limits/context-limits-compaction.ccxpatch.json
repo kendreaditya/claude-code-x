@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "id": "context-limits-compaction",
+  "name": "Context Window & Compaction Limits (272k)",
+  "group": "limits",
+  "level": "binary",
+  "description": "Raises the model context-window constant from 200000 to 272000 tokens and slightly increases the autocompact reserved-buffer constant from 13000 to 13600, both as same-length numeric literal swaps inside the minified main app module. Derived from InDreamer/claude-context-patch; the upstream script's additional 95%/90% effective-window function-body rewrites are length-changing and intentionally excluded to preserve binary integrity.",
+  "provenance": {
+    "source_repo": "InDreamer/claude-context-patch",
+    "source_url": "https://github.com/InDreamer/claude-context-patch",
+    "author": "InDreamer",
+    "license": "unknown",
+    "derived_by": "anchored against pristine 2.1.158 using 2.1.88 source ref"
+  },
+  "applies_to": {
+    "containers": [
+      "macho-arm64-bun",
+      "macho-x64-bun",
+      "elf-x64-bun"
+    ],
+    "version_range": ">=2.1.0 <3.0.0",
+    "verified_on": [
+      "2.1.158"
+    ]
+  },
+  "allow_variable_length": false,
+  "operations": [
+    {
+      "op_id": "ctx-window-272k",
+      "kind": "landmark-anchored",
+      "rationale": "Per-model token-budget block: raise context window 200000->272000 (same length, 6 digits). Structurally unique 4-field var block; 3 other =200000 literals in the binary have different surrounding fields and do not match.",
+      "must_be_unique": true,
+      "same_length": true,
+      "in_bun_region": true,
+      "anchor": "(var [A-Za-z0-9_$]{2,5}=)200000(,[A-Za-z0-9_$]{2,5}=20000,[A-Za-z0-9_$]{2,5}=32000,[A-Za-z0-9_$]{2,5}=128000;)",
+      "replace": "\\g<1>272000\\g<2>",
+      "patched_anchor": "var [A-Za-z0-9_$]{2,5}=272000,[A-Za-z0-9_$]{2,5}=20000,[A-Za-z0-9_$]{2,5}=32000,[A-Za-z0-9_$]{2,5}=128000;"
+    },
+    {
+      "op_id": "autocompact-buffer-13600",
+      "kind": "landmark-anchored",
+      "rationale": "AUTOCOMPACT_BUFFER_TOKENS/MANUAL_COMPACT_BUFFER_TOKENS block: raise reserved autocompact buffer 13000->13600 (same length, 5 digits). Unique via trailing ,=3000,=0.2; structure; only =13000 literal of this shape in the binary.",
+      "must_be_unique": true,
+      "same_length": true,
+      "in_bun_region": true,
+      "anchor": "(var [A-Za-z0-9_$]{2,5}=)13000(,[A-Za-z0-9_$]{2,5}=3000,[A-Za-z0-9_$]{2,5}=0\\.2;)",
+      "replace": "\\g<1>13600\\g<2>",
+      "patched_anchor": "var [A-Za-z0-9_$]{2,5}=13600,[A-Za-z0-9_$]{2,5}=3000,[A-Za-z0-9_$]{2,5}=0\\.2;"
+    }
+  ]
+}

@@ -141,6 +141,26 @@ def apply_patch(pd: PatchDef, target: Target, profile: str = "default",
             "effect": eff_status, "effect_detail": eff_detail}
 
 
+def detect_conflicts(pds: list, data: bytes) -> list:
+    """Return [(id_a, id_b, (lo, hi))] for patches whose resolved edit byte-ranges
+    overlap. Same-length edits don't shift offsets, so resolving all against the
+    same bytes gives comparable intervals."""
+    spans = {}
+    for pd in pds:
+        res = resolve(pd, data)
+        spans[pd.id] = [(e.offset, e.offset + len(e.old_bytes)) for e in res.edits]
+    ids = list(spans)
+    out = []
+    for i in range(len(ids)):
+        for j in range(i + 1, len(ids)):
+            for (a0, a1) in spans[ids[i]]:
+                for (b0, b1) in spans[ids[j]]:
+                    lo, hi = max(a0, b0), min(a1, b1)
+                    if lo < hi:
+                        out.append((ids[i], ids[j], (lo, hi)))
+    return out
+
+
 def validate_on_copy(pd: PatchDef, target: Target) -> dict:
     """Apply a patch to a TEMP COPY, smoke-test launch, discard. Used by
     `ccx validate-all` and release-watch CI — never touches the real binary or

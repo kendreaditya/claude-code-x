@@ -123,6 +123,19 @@ def test_revert_all(copy: Path, fifo: PatchDef):
         mf.unlink()
 
 
+def test_conflict_detection():
+    a = load_one("expand-thinking-traces")
+    b = load_one("inline-files-thinking")
+    c = load_one("user-message-color")
+    if not (a and b and c):
+        return
+    data = (PRISTINE_DEFAULT).read_bytes()
+    conf = engine.detect_conflicts([a, b], data)
+    check(any({x, y} == {"expand-thinking-traces", "inline-files-thinking"}
+              for x, y, _ in conf), "overlapping thinking patches flagged as conflict")
+    check(engine.detect_conflicts([a, c], data) == [], "non-overlapping patches => no conflict")
+
+
 def test_detect_errors():
     try:
         detect("/no/such/binary/anywhere")
@@ -147,6 +160,7 @@ def main(pristine: Path) -> int:
             sign.resign(copy, "macho-arm64")
         test_anchor_states(copy)
         test_partial_state(copy, fifo)
+        test_conflict_detection()
         test_revert_all(copy, fifo)
     print(f"\n{'ALL EXTENSION TESTS PASSED' if not _fail else f'{_fail} FAILURE(S)'}")
     return 1 if _fail else 0

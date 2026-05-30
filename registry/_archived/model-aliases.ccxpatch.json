@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "id": "model-aliases",
+  "name": "model-aliases",
+  "group": "models",
+  "level": "binary",
+  "description": "custom model aliases via ANTHROPIC_DEFAULT_*_MODEL env vars; find the model-alias resolution. Archived upstream \u2014 verify it still applies.",
+  "archived": true,
+  "archive_reason": "The model-aliases patch is inherently length-changing and cannot be neutralized to a same-length binary edit. The upstream patcher (lib/patcher.py, East-rayyy/claude-alias-patch, archived 2026-04-25) applies 6 patches to cli.js. The model-alias RESOLUTION target (Patch 6, \"Alias resolver fallback\" in parseUserSpecifiedModel) INSERTS ~120 new bytes of executable JS between the `default:}` of the alias switch and the firstParty guard: `var _fev=\"ANTHROPIC_DEFAULT_\"+z.toUpperCase().replace(/-/g,\"_\")+\"_MODEL\";if(process.env[_fev])return process.env[_fev]/*ccpatch:fallback-resolver*/;`. There is no existing identifier or literal to swap \u2014 the whole point is injecting new runtime env-var-lookup behavior, so same-length is impossible. The other 5 patches are also pure insertions (`.concat(SCAN)`, a `.has=function(...)` Set-override, an expanded `.describe(...)`, a picker `.map(...)`, and a `.enum(...)->.string()` swap that adds a marker comment) \u2014 all length-changing, none expressible as same-length swaps. In patcher.py every op computes `expected_diff=len(replacement)-len(pattern)` as a positive delta, confirming length growth.\n\nAnchors have also drifted off 2.1.158: probing the pristine binary /tmp/ccx-test/claude-pristine (size 213,982,368), Patch 6's regex `(default:\\})(if\\([\\w$]+\\(\\)===\"firstParty\"&&[\\w$]+\\([\\w$]+\\)&&[\\w$]+\\(\\)\\))` matches 0 times because the firstParty check is now wrapped in a helper (`if(n$()&&xo_(O)&&$FH())`) instead of an inline `===\"firstParty\"`. Patch 2 (`(\\w+)=new Set([\"ANTHROPIC_CUSTOM_HEADERS\"`) and Patch 3 (`catch{return[\"sonnet\",\"opus\",\"haiku\"]}`) also match 0 times. Only Patch 1's enum anchor still matches (1x at offset 202,558,103), but it too is a length-changing insertion. Verdict: not a same-length binary edit; archive.",
+  "provenance": {
+    "source_repo": "East-rayyy/claude-alias-patch",
+    "author": "East-rayyy",
+    "license": "unknown"
+  },
+  "applies_to": {
+    "containers": [],
+    "version_range": ">=2.1.0 <3.0.0"
+  },
+  "operations": []
+}

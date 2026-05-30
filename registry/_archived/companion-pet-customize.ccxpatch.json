@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "id": "companion-pet-customize",
+  "name": "companion-pet-customize",
+  "group": "cosmetic",
+  "level": "binary",
+  "description": "companion-pet rarity/species/hat/eyes customization via landmark-based binary patch; may be complex \u2014 assess feasibility",
+  "archived": true,
+  "archive_reason": "The companion-pet/gacha \"buddy\" feature that this patch targets does not exist in the pristine 2.1.158 binary, so no anchor can be matched. The upstream crack (Pickle-Pixel/claudecode-buddy-crack) flips a spread operator from `return { ...stored, ...bones }` to `return { ...bones, ...stored }`, anchored on the landmark `let{bones:`. None of the load-bearing identifiers from this feature are present in /tmp/ccx-test/claude-pristine: regex searches over the raw bytes returned occurrences==0 for b'bones', b'{bones:', b'inspirationSeed', b'CompanionBones', b'companionUserId', b'...stored', b'...bones', b'rarity', and b'Sprite' (only 1 unrelated 'legendary', 0 'rarity'). The 12 b'companion' hits are all the unrelated event-type string 'companion_intro' (e.g. offsets 202031205, 203676496 inside `new Set([\"compaction_reminder\",\"companion_intro\",\"pen_mode_enter\",\"pen_mode_exit\"])`) plus Kotlin/Stata keyword-list noise in non-region data (~167M, ~199M). The b'buddy'/b'Buddy' hits are 'onboarding buddy' (205887989) and '/usr/libexec/PlistBuddy' (197155168, 85813634), not the pet feature. The 79 matches of the generic spread pattern `...\\w,...\\w}` are ordinary minified code, none tied to companion bones. The buddy source under /tmp/cc-2188/buddy/ (companion.ts, sprites.ts, CompanionSprite.tsx) is a separate/third-party feature codebase the crack assumes is compiled in; stock Claude Code 2.1.158 does not ship it. Because the target code is entirely absent, there is no stable unique in-region anchor to patch.",
+  "provenance": {
+    "source_repo": "Pickle-Pixel/claudecode-buddy-crack",
+    "author": "Pickle-Pixel",
+    "license": "unknown"
+  },
+  "applies_to": {
+    "containers": [],
+    "version_range": ">=2.1.0 <3.0.0"
+  },
+  "operations": []
+}

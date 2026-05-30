@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "id": "expand-thinking-traces",
+  "name": "Expand Thinking Traces By Default",
+  "group": "behavior",
+  "level": "binary",
+  "description": "Render assistant thinking blocks fully expanded by default, without requiring ctrl+o. Forces the shouldShowFullThinking gate (isTranscriptMode||verbose) in AssistantThinkingMessage to be always truthy by swapping the minified `verbose` operand for the literal `1`, so the collapsed one-line '\u2234 Thinking (ctrl+o to expand)' branch is never taken and the full Markdown thinking content is shown inline.",
+  "provenance": {
+    "source_repo": "aleks-apostle/claude-code-patches",
+    "source_url": "https://github.com/aleks-apostle/claude-code-patches",
+    "author": "aleks-apostle",
+    "license": "unknown",
+    "derived_by": "anchored against pristine 2.1.158 using 2.1.88 source ref"
+  },
+  "applies_to": {
+    "containers": [
+      "macho-arm64-bun",
+      "macho-x64-bun",
+      "elf-x64-bun"
+    ],
+    "version_range": ">=2.1.0 <3.0.0",
+    "verified_on": [
+      "2.1.158"
+    ]
+  },
+  "allow_variable_length": false,
+  "operations": [
+    {
+      "op_id": "force-show-full-thinking",
+      "kind": "landmark-anchored",
+      "rationale": "In minified AssistantThinkingMessage (fn neH), `let w=O||T` computes shouldShowFullThinking from isTranscriptMode(O)||verbose(T); downstream `w?<full Markdown>:<collapsed one-liner>` chooses rendering. Replacing the verbose operand T with literal 1 makes w always truthy, forcing full expanded rendering with no ctrl+o. Single-char identifier -> single-char literal keeps byte length identical. The two preceding `if(!x)return null;if(y)return null;` guards (thinking-empty and hideInTranscript) plus the `,z=Y?1:0` margin computation pin the anchor uniquely.",
+      "must_be_unique": true,
+      "same_length": true,
+      "in_bun_region": true,
+      "anchor": "(if\\(!\\w\\)return null;if\\(\\w\\)return null;let \\w=\\w\\|\\|)\\w(,\\w=\\w\\?1:0)",
+      "replace": "\\g<1>1\\g<2>",
+      "patched_anchor": "if\\(!\\w\\)return null;if\\(\\w\\)return null;let \\w=\\w\\|\\|1,\\w=\\w\\?1:0"
+    }
+  ],
+  "conflicts_with": [
+    "inline-files-thinking"
+  ]
+}

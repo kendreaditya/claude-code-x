@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "channels-no-oauth",
+  "name": "Channels Without claude.ai OAuth",
+  "group": "privacy",
+  "level": "binary",
+  "description": "Enables the --channels feature regardless of claude.ai OAuth / account state by forcing the isChannelsEnabled() runtime feature gate (the server-side GrowthBook flag 'tengu_harbor', normally default-false and only delivered to OAuth'd claude.ai accounts) to default true. In 2.1.158 the explicit getClaudeAIOAuthTokens() auth check was removed from gateChannelServer; this tengu_harbor runtime gate is the sole remaining barrier, so flipping its default boolean from false (!1) to true (!0) lets channel servers register without claude.ai OAuth. Single-character, same-length edit inside the main CJS bun module.",
+  "provenance": {
+    "source_repo": "genusdryasnizhninovgorod936/claude-channels-patch",
+    "source_url": "https://github.com/genusdryasnizhninovgorod936/claude-channels-patch",
+    "author": "genusdryasnizhninovgorod936",
+    "license": "unknown",
+    "derived_by": "anchored against pristine 2.1.158 using 2.1.88 source ref (upstream README failed to load; mapped via gateChannelServer/isChannelsEnabled semantics)"
+  },
+  "applies_to": {
+    "containers": [
+      "macho-arm64-bun",
+      "macho-x64-bun",
+      "elf-x64-bun"
+    ],
+    "version_range": ">=2.1.0 <3.0.0",
+    "verified_on": [
+      "2.1.158"
+    ]
+  },
+  "allow_variable_length": false,
+  "operations": [
+    {
+      "op_id": "force-channels-enabled-default",
+      "kind": "landmark-anchored",
+      "rationale": "isChannelsEnabled() (minified zEH) returns getFeatureValue_CACHED_MAY_BE_STALE('tengu_harbor', false). This runtime gate is checked before policy/session/allowlist and, in 2.1.158, is the only gate (the OAuth token check was removed) that depends on having a claude.ai account. Changing the default false (!1) to true (!0) enables channels without OAuth. 1-char same-length swap; \\g<1> backref preserves the churn-prone minified function/helper identifiers (zEH, Z_).",
+      "must_be_unique": true,
+      "same_length": true,
+      "in_bun_region": true,
+      "anchor": "(function \\w{2,5}\\(\\)\\{return \\w{1,3}\\(\"tengu_harbor\",)!1\\)",
+      "replace": "\\g<1>!0)",
+      "patched_anchor": "(function \\w{2,5}\\(\\)\\{return \\w{1,3}\\(\"tengu_harbor\",)!0\\)"
+    }
+  ]
+}

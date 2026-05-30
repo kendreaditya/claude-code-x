@@ -123,6 +123,18 @@ def cmd_apply(args) -> int:
         print("Nothing to apply.")
         return 0
 
+    # conflict detection: drop later patches whose edits overlap an earlier one
+    conflicts = engine.detect_conflicts(plan_items, data)
+    if conflicts:
+        drop = set()
+        for a, b, span in conflicts:
+            print(f"  ! conflict: {a} and {b} edit overlapping bytes {span} — keeping {a}, skipping {b}")
+            drop.add(b)
+        plan_items = [pd for pd in plan_items if pd.id not in drop]
+        if not plan_items:
+            print("Nothing to apply after conflict resolution.")
+            return 0
+
     for pd in plan_items:
         cite_block(pd)
     if args.dry_run:

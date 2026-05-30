@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "id": "trim-system-prompt",
+  "name": "trim-system-prompt",
+  "group": "performance",
+  "level": "binary",
+  "description": "trim ~2400 tokens from system prompt; NOTE removing text is length-changing \u2014 assess whether a same-length neutralization exists, else archive as needs-variable-length",
+  "archived": true,
+  "archive_reason": "Inherently length-changing; no same-length neutralization exists. The upstream patch (ykdojo/claude-code-tips system-prompt, wrapped by kfirco-jit/claude-code-patches) is a set of ~25 find->replace operations driven by patch-cli.js, each of which DELETES prompt text to cut the system prompt roughly in half (~2400+ tokens / README claims ~19k->9k). Verified from the upstream patch files that every replace string is dramatically SHORTER than its find string (edit-emoji 117->20 bytes, code-references 362->3, read-tool 298->122, professional-objectivity 762->126). The goal is to reduce the number of tokens the model receives. A same-length binary edit cannot achieve this: replacing removed text with same-length space/identifier padding keeps the byte count identical AND keeps those bytes as live prompt tokens that are still sent to the model, so it saves zero tokens and is a functional no-op against the patch's purpose. Thus the patch can only be realized as a variable-length (text-shrinking) edit, violating the same-length constraint -> needs-variable-length. Secondary issue: the upstream find/replace strings target the 2.0.70 prompt and do not survive version churn (none of the probed 2.0.70 target phrases are present in the 2.1.158 pristine binary), so even the anchors are not stable on 2.1.158.",
+  "provenance": {
+    "source_repo": "kfirco-jit/claude-code-patches",
+    "author": "kfirco-jit",
+    "license": "unknown"
+  },
+  "applies_to": {
+    "containers": [],
+    "version_range": ">=2.1.0 <3.0.0"
+  },
+  "operations": []
+}

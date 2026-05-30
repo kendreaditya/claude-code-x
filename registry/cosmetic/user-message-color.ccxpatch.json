@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "id": "user-message-color",
+  "name": "User Message Color",
+  "group": "cosmetic",
+  "level": "binary",
+  "description": "Highlights user messages by recoloring the dark-theme userMessageBackground from grey rgb(55, 55, 55) to blue-600 rgb(37, 99,235). Patches both dark-theme variants (standard + daltonized) in the main CJS module. Same-length string-literal swap, no offset breakage.",
+  "provenance": {
+    "source_repo": "gabinfay/claude-code-color-patch",
+    "source_url": "https://github.com/gabinfay/claude-code-color-patch",
+    "author": "gabinfay",
+    "license": "unknown",
+    "derived_by": "anchored against pristine 2.1.158 using 2.1.88 source ref"
+  },
+  "applies_to": {
+    "containers": [
+      "macho-arm64-bun",
+      "macho-x64-bun",
+      "elf-x64-bun"
+    ],
+    "version_range": ">=2.1.0 <3.0.0",
+    "verified_on": [
+      "2.1.158"
+    ]
+  },
+  "allow_variable_length": false,
+  "operations": [
+    {
+      "op_id": "dark-theme-user-bg",
+      "kind": "landmark-anchored",
+      "rationale": "Standard dark theme: userMessageBackground 'rgb(55, 55, 55)' -> 'rgb(37, 99,235)'. Distinguished from the daltonized variant by the preceding cyan_FOR_SUBAGENTS_ONLY:\"rgb(8,145,178)\" token. Backref \\g<1>/\\g<2> preserve churned minified context; only the 15-byte rgb literal changes.",
+      "must_be_unique": true,
+      "same_length": true,
+      "in_bun_region": true,
+      "anchor": "(rgb\\(8,145,178\\)\",professionalBlue:\"rgb\\(106,155,204\\)\",chromeYellow:\"rgb\\(251,188,4\\)\",clawd_body:\"rgb\\(215,119,87\\)\",clawd_background:\"rgb\\(0,0,0\\)\",userMessageBackground:\")rgb\\(55, 55, 55\\)(\")",
+      "replace": "\\g<1>rgb(37, 99,235)\\g<2>",
+      "patched_anchor": "rgb\\(8,145,178\\)\",professionalBlue:\"rgb\\(106,155,204\\)\",chromeYellow:\"rgb\\(251,188,4\\)\",clawd_body:\"rgb\\(215,119,87\\)\",clawd_background:\"rgb\\(0,0,0\\)\",userMessageBackground:\"rgb\\(37, 99,235\\)\""
+    },
+    {
+      "op_id": "dark-theme-daltonized-user-bg",
+      "kind": "landmark-anchored",
+      "rationale": "Daltonized (colorblind) dark theme: userMessageBackground 'rgb(55, 55, 55)' -> 'rgb(37, 99,235)'. Distinguished from the standard dark variant by the preceding cyan_FOR_SUBAGENTS_ONLY:\"rgb(102,204,204)\" token. Backref \\g<1>/\\g<2> preserve churned context; only the 15-byte rgb literal changes.",
+      "must_be_unique": true,
+      "same_length": true,
+      "in_bun_region": true,
+      "anchor": "(rgb\\(102,204,204\\)\",professionalBlue:\"rgb\\(106,155,204\\)\",chromeYellow:\"rgb\\(251,188,4\\)\",clawd_body:\"rgb\\(215,119,87\\)\",clawd_background:\"rgb\\(0,0,0\\)\",userMessageBackground:\")rgb\\(55, 55, 55\\)(\")",
+      "replace": "\\g<1>rgb(37, 99,235)\\g<2>",
+      "patched_anchor": "rgb\\(102,204,204\\)\",professionalBlue:\"rgb\\(106,155,204\\)\",chromeYellow:\"rgb\\(251,188,4\\)\",clawd_body:\"rgb\\(215,119,87\\)\",clawd_background:\"rgb\\(0,0,0\\)\",userMessageBackground:\"rgb\\(37, 99,235\\)\""
+    }
+  ]
+}

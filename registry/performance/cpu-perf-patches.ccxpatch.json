@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "cpu-perf-patches",
+  "name": "CPU Perf: Disable Forced 1s Bun.gc Interval",
+  "group": "performance",
+  "level": "binary",
+  "description": "Neutralizes the unconditional once-per-second forced full garbage collection (setInterval(Bun.gc,1000).unref()) in the headless/startup path. Mirrors the 'Forced GC Every Second' finding from denysvitali/claude-code-patches, which observed 7 HeapHelper threads doing continuous marking work. Implemented as a same-length binary edit changing the 1000ms delay literal to 1e15 (~31,700 years), effectively disabling the manual GC while keeping Bun's adaptive GC intact. The upstream project's other CPU patches are runtime NODE_OPTIONS monkeypatches (reference-equality interception of setInterval, heap capping, telemetry/caching) that do not correspond to a single unique same-length binary string and are not reproduced here.",
+  "provenance": {
+    "source_repo": "denysvitali/claude-code-patches",
+    "source_url": "https://github.com/denysvitali/claude-code-patches",
+    "author": "denysvitali",
+    "license": "unknown",
+    "derived_by": "anchored against pristine 2.1.158 using 2.1.88 source ref"
+  },
+  "applies_to": {
+    "containers": [
+      "macho-arm64-bun",
+      "macho-x64-bun",
+      "elf-x64-bun"
+    ],
+    "version_range": ">=2.1.0 <3.0.0",
+    "verified_on": [
+      "2.1.158"
+    ]
+  },
+  "allow_variable_length": false,
+  "operations": [
+    {
+      "op_id": "disable-forced-gc-interval",
+      "kind": "landmark-anchored",
+      "rationale": "Upstream FINDINGS_2.1.45.md Finding 1: forced setInterval(Bun.gc,1000) causes continuous full-GC marking work. Changing the 1000ms delay to 1e15 (same length, 4 chars) makes the timer effectively never fire, disabling the manual GC without changing byte count or breaking JS validity. .unref() is preserved.",
+      "must_be_unique": true,
+      "same_length": true,
+      "in_bun_region": true,
+      "anchor": "setInterval\\(Bun\\.gc,1000\\)\\.unref\\(\\)",
+      "replace": "setInterval(Bun.gc,1e15).unref()",
+      "patched_anchor": "setInterval\\(Bun\\.gc,1e15\\)\\.unref\\(\\)"
+    }
+  ]
+}
