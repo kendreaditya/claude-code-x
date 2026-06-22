@@ -293,28 +293,33 @@ def locate_patch_2(data):
     Anchored on the function signature shape (parameter destructure +
     `agentId===void 0` arrow), which the source defines and the minifier
     can't restructure. Inside that function, find the bash check and
-    extract the (unstable) minified isSlashCommand identifier. Replace
-    `"bash"` with `q.mode` so the gate becomes tautologically true,
-    forcing every queued command through the single-item dequeue path
-    instead of the bundled drain.
+    extract the (unstable) minified isSlashCommand identifier AND the
+    (also unstable) minified loop variable name via a backreference —
+    the variable isn't always `q` (e.g. 2.1.185 minifies it as `t`).
+    Replace `"bash"` with `<var>.mode` so the gate becomes tautologically
+    true, forcing every queued command through the single-item dequeue
+    path instead of the bundled drain.
     """
-    # Unpatched: `<slash>(q)||q.mode==="bash"`
-    m = re.search(rb'([A-Za-z_$0-9]+)\(q\)\|\|q\.mode==="bash"', data)
+    # Unpatched: `<slash>(<var>)||<var>.mode==="bash"` — backreference so
+    # this matches regardless of what the minifier names the loop var.
+    m = re.search(rb'([A-Za-z_$0-9]+)\(([A-Za-z_$0-9]+)\)\|\|\2\.mode==="bash"', data)
     if m:
         old = m.group(0)
-        new = old.replace(b'"bash"', b'q.mode')
+        new = old.replace(b'"bash"', m.group(2) + b'.mode')
         return old, new
     # Idempotency: already patched. Derive OLD from NEW.
-    m = re.search(rb'([A-Za-z_$0-9]+)\(q\)\|\|q\.mode===q\.mode', data)
+    m = re.search(rb'([A-Za-z_$0-9]+)\(([A-Za-z_$0-9]+)\)\|\|\2\.mode===\2\.mode', data)
     if m:
         new = m.group(0)
-        old = new.replace(b'q.mode===q.mode', b'q.mode==="bash"')
+        old = new.replace(m.group(2) + b'.mode===' + m.group(2) + b'.mode',
+                           m.group(2) + b'.mode==="bash"')
         return old, new
     raise PatchError(
         "could not locate processQueueIfReady bash check — neither the "
-        "unpatched fingerprint `XXX(q)||q.mode===\"bash\"` nor the patched "
-        "tautology `XXX(q)||q.mode===q.mode` matched. Source structure may "
-        "have changed; re-derive against src/utils/queueProcessor.ts."
+        "unpatched fingerprint `XXX(<var>)||<var>.mode===\"bash\"` nor the "
+        "patched tautology `XXX(<var>)||<var>.mode===<var>.mode` matched. "
+        "Source structure may have changed; re-derive against "
+        "src/utils/queueProcessor.ts."
     )
 
 
