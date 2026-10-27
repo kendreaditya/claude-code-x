@@ -1,5 +1,5 @@
 {
-  "version": "2.1.310",
+  "version": "2.1.311",
   "platforms": [
     "macho-arm64",
     "elf-x64"
